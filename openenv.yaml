@@ -1,0 +1,21 @@
+name: loan-risk-env
+description: Loan approval RL environment
+
+entrypoint: env.loan_env:LoanEnv
+
+tasks:
+  - name: easy
+  - name: medium
+  - name: hard
+
+action_space:
+  type: discrete
+  values: ["approve", "reject"]
+
+observation_space:
+  type: dict
+  fields:
+    income_stability: string
+    credit_history: string
+    employment_type: string
+    loan_amount: int
