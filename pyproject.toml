@@ -2,15 +2,17 @@
 name = "loan-openenv"
 version = "0.1.0"
 description = "Smart Loan Approval OpenEnv Environment"
-authors = [
-  { name = "Your Name" }
-]
+authors = [{ name = "Your Name" }]
 requires-python = ">=3.10"
 
 dependencies = [
   "fastapi",
-  "uvicorn"
+  "uvicorn",
+  "openenv-core>=0.2.0"
 ]
+
+[project.scripts]
+server = "server.app:app"
 
 [build-system]
 requires = ["setuptools"]
