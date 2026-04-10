@@ -29,15 +29,19 @@ Answer strictly in one word:
 approve or reject
 """
 
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=10,
-    )
+    try:
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=10,
+        )
 
-    action = response.choices[0].message.content.strip().lower()
+        action = response.choices[0].message.content.strip().lower()
 
-    if action not in ["approve", "reject"]:
+        if action not in ["approve", "reject"]:
+            action = "reject"
+
+    except Exception:
         action = "reject"
 
     return action
