@@ -1,39 +1,33 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, validator
 import uvicorn
 from env.loan_env import LoanEnv
 
 app = FastAPI()
-env = LoanEnv()
 
 class ActionRequest(BaseModel):
     action: str
+    task: str = "easy"
+
+    @validator("action")
+    def validate_action(cls, v):
+        if v not in ("approve", "reject"):
+            raise ValueError("action must be 'approve' or 'reject'")
+        return v
 
 @app.post("/reset")
-def reset():
-    state = env.reset()
-    return {"state": state}
+def reset(task: str = "easy"):
+    env = LoanEnv(task=task)      
+    app.state.env = env            
+    return {"state": env.reset()}
 
 @app.post("/step")
 def step(req: ActionRequest):
+    env = getattr(app.state, "env", None)
+    if env is None or env.current_state is None:
+        raise HTTPException(status_code=400, detail="Call /reset first")
     state, reward, done, info = env.step(req.action)
-    return {
-        "state": state,
-        "reward": reward,
-        "done": done,
-        "info": info
-    }
+    return {"state": state, "reward": reward, "done": done, "info": info}
 
-@app.get("/state")
-def get_state():
-    return {"state": env.current_state}
-
-
-# ✅ ADD THIS MAIN FUNCTION (VERY IMPORTANT)
-def main():
-    uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
-
-
-# ✅ ADD THIS ENTRY POINT
 if __name__ == "__main__":
-    main()
+    uvicorn.run("app:app", host="0.0.0.0", port=7860)  
