@@ -2,7 +2,7 @@ from tasks import task
 import random
 
 class LoanEnv:
-    def __init__(self,task: Task=Task.easy):
+    def __init__(self,task: Task=Task.EASY):
         self.task=task
         self.current_state = None
 
