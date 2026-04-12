@@ -32,7 +32,7 @@ Answer only: approve or reject
         if action not in ["approve", "reject"]:
             action = "reject"
     except Exception:
-        action = random.choice(["approve", "reject"])
+        action = "reject"
     return action
 
 def run_task(task):
