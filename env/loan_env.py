@@ -1,23 +1,31 @@
+import random
+
 class LoanEnv:
     def __init__(self, task="easy"):
         self.task = task
-        self.state = None
+        self.current_state = None
 
     def reset(self):
-        self.state = self._get_task_state()
-        return self.state
+        self.current_state = self._get_task_state()
+        return self.current_state
 
     def step(self, action):
-        default = self._simulate_default(self.state)
+        default = self._simulate_default(self.current_state)
 
         if action == "approve":
-            reward = 1.0 if not default else 0.0
+            if not default:
+                reward = 0.9
+            else:
+                reward = 0.1
         elif action == "reject":
-            reward = 1.0 if default else 0.0
+            if default:
+                reward = 0.8
+            else:
+                reward = 0.3
         else:
-            return self.state, 0.0, True, {"error": "invalid_action"}
+            return self.current_state, 0.01, True, {"error": "invalid_action"}
 
-        return self.state, reward, True, {}
+        return self.current_state, reward, True, {}
 
     def _simulate_default(self, state):
         score = 0
@@ -30,28 +38,62 @@ class LoanEnv:
             score += 1
         if state["loan_amount"] < 50000:
             score += 1
+        if state["past_defaults"] == 0:
+            score += 1
 
-        return score < 2
+        return score < 3
 
     def _get_task_state(self):
-        if self.task == "easy":
-            return {
-                "income_stability": "stable",
-                "credit_history": "good",
-                "employment_type": "salaried",
-                "loan_amount": 20000
-            }
-        elif self.task == "medium":
-            return {
-                "income_stability": "stable",
-                "credit_history": "bad",
-                "employment_type": "self-employed",
-                "loan_amount": 70000
-            }
+        if self.task == "easy_clear_approval":
+            return random.choice([
+                {
+                    "income_stability": "stable",
+                    "credit_history": "good",
+                    "employment_type": "salaried",
+                    "loan_amount": 20000,
+                    "past_defaults": 0
+                },
+                {
+                    "income_stability": "stable",
+                    "credit_history": "good",
+                    "employment_type": "salaried",
+                    "loan_amount": 30000,
+                    "past_defaults": 0
+                }
+            ])
+
+        elif self.task == "medium_mixed_case":
+            return random.choice([
+                {
+                    "income_stability": "stable",
+                    "credit_history": "bad",
+                    "employment_type": "self-employed",
+                    "loan_amount": 70000,
+                    "past_defaults": 1
+                },
+                {
+                    "income_stability": "unstable",
+                    "credit_history": "good",
+                    "employment_type": "self-employed",
+                    "loan_amount": 60000,
+                    "past_defaults": 1
+                }
+            ])
+
         else:
-            return {
-                "income_stability": "unstable",
-                "credit_history": "good",
-                "employment_type": "self-employed",
-                "loan_amount": 120000
-            }
+            return random.choice([
+                {
+                    "income_stability": "unstable",
+                    "credit_history": "bad",
+                    "employment_type": "self-employed",
+                    "loan_amount": 120000,
+                    "past_defaults": 2
+                },
+                {
+                    "income_stability": "unstable",
+                    "credit_history": "good",
+                    "employment_type": "self-employed",
+                    "loan_amount": 100000,
+                    "past_defaults": 3
+                }
+            ])
