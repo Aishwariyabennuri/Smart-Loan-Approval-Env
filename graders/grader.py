@@ -2,10 +2,7 @@ def compute_score(rewards):
     if not rewards:
         return 0.5
 
-    total = sum(rewards)
-    max_possible = len(rewards) * 1.0
-
-    score = total / max_possible
+    score = sum(rewards) / len(rewards)
 
     if score <= 0.0:
         score = 0.01
