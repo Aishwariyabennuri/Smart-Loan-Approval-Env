@@ -15,44 +15,35 @@ client = OpenAI(
 
 def get_action_from_llm(state):
     prompt = f"""
-You are a loan approval agent.
-
-Decide whether to APPROVE or REJECT the loan.
+Decide whether to approve or reject the loan.
 
 State:
 {state}
 
 Answer only: approve or reject
 """
-
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=10,
         )
-
         action = response.choices[0].message.content.strip().lower()
-
         if action not in ["approve", "reject"]:
             action = "reject"
-
     except Exception:
         action = "reject"
-
     return action
 
 def run_task(task):
     env = LoanEnv(task)
     state = env.reset()
-
     rewards = []
 
     print(f"[START] task={task} env=loan-risk model={MODEL_NAME}")
 
     for step in range(1, 3):
         action = get_action_from_llm(state)
-
         state, reward, done, _ = env.step(action)
         rewards.append(reward)
 
